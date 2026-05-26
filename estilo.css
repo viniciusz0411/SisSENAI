@@ -33,3 +33,21 @@ th, td {border-bottom: 1px solid #ddd;padding:10px; text-align:left;}
   margin-top:50px;/*Garante distancia do conteudo superior*/
   width:100%;
 }
+
+.container-rodape p {
+  margin: 5px 0;
+  font-size:0.9em;
+  opacity:0.8;
+}
+
+/* Ajuste para o corpo da página não cortar o rodapé em telas pequenas*/
+body{
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0;
+}
+
+.container{
+  flex:1; /*Faz o conteúdo principal esticar e empurrar o rodapé para baixo*/
+}
