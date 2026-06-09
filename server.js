@@ -58,7 +58,7 @@ app.delete('/excluir-cliente/:id', (req, res) => {
 //Iniciar servidor
 const PORT=3000;
 app.listen(PORT,()=>{
-  console.log('=================================================='
+  console.log('==================================================')
   console.log(`SISSENAI DISPONÍVEL EM: https://localhost:${PORT}`)   
-  console.log('=================================================='
+  console.log('==================================================')
 });
