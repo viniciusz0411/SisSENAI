@@ -36,7 +36,25 @@ app.get('/listar-clientes',(req,res)=>{
     res.json(rows);
   });
 });
+app.put('/alterar-cliente/:id', (req, res) => {
+    const { id } = req.params;
+    const { nome, cpf, telefone } = req.body;
+    const sql = UPDATE clientes SET nome = ?, cpf = ?, telefone = ? WHERE id = ?;
 
+    db.run(sql, [nome, cpf, telefone, id], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true });
+    });
+});
+// * NOVA ROTA: Excluir cliente * | Acrescentar tudo
+app.delete('/excluir-cliente/:id', (req, res) => {
+    const { id } = req.params;
+    
+    db.run(DELETE FROM clientes WHERE id = ?, [id], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true });
+    });
+});
 //Iniciar servidor
 const PORT=3000;
 app.listen(PORT,()=>{
@@ -44,4 +62,3 @@ app.listen(PORT,()=>{
   console.log(`SISSENAI DISPONÍVEL EM: https://localhost:${PORT}`)   
   console.log('=================================================='
 });
-
