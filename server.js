@@ -50,7 +50,7 @@ app.put('/alterar-cliente/:id', (req, res) => {
 app.delete('/excluir-cliente/:id', (req, res) => {
     const { id } = req.params;
     
-    db.run(DELETE FROM clientes WHERE id = ?, [id], (err) => {
+    db.run(`DELETE FROM clientes WHERE id = ?`, [id], (err) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ success: true });
     });
