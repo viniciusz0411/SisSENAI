@@ -76,7 +76,7 @@
             telefone: this.telefone.value
         };
 
-        const url = id ? /alterar-cliente/${id} : '/salvar-cliente';
+        const url = id ? `/alterar-cliente/${id}` : '/salvar-cliente';
         const metodo = id ? 'PUT' : 'POST';
 
         fetch(url, {
@@ -92,7 +92,7 @@
     // Função para Excluir | Acrescentar tudo
     function excluirCliente(id) {
         if (confirm("Deseja excluir este cliente?")) {
-            fetch(/excluir-cliente/${id}, { method: 'DELETE' })
+            fetch(`/excluir-cliente/${id}`, { method: 'DELETE' })
                 .then(() => carregarClientes());
         }
     }
