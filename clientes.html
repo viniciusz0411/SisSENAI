@@ -1,132 +1,128 @@
 <!DOCTYPE html>
-<html lang='pt-br'>
+<html lang="pt-br">
 <head>
-  <meta charset='UTF-8'>
-  <link rel='stylesheet' href='estilo.css'>
-  <title>SisSenai - Cadrasto de Clientes.</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="estilo.css">
+    <title>SisSenai - Cadastro de Clientes</title>
 </head>
 <body>
-  <nav>
-    <a href='index.html'>Home</a>
-    <a href='clientes.html'>Clientes</a>
-    <a href='produtos.html'>Produtos</a>
-    <a href='vendas.html'>Vendas</a>
-    <a href='consulta_vendas.html'>Consulta Vendas</a>
-  </nav>
-  <header class='banner'>
-    <h1>Gestão de Clientes</h1>
-    <p>Cadraste e gerencie sua base de contatos</p>
-  </header>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="clientes.html">Clientes</a>
+        <a href="produtos.html">Estoque</a>
+        <a href="vendas.html">Vendas</a>
+    </nav>
 
-  <div class='container'>
-    <div class='card'>
-      <h2>Novo Cadastro</h2>
-      <form action='/salvar-cliente' method='POST'>
-        <input type='text' name='nome' placeholder='Nome do Cliente' required>
-        <input type='text' name='cpf' placeholder='CPF/CNPJ' required>
-        <input type='text' name='telefone' placeholder='Telefone' required>
-        <button type='submit'>Salvar Cliente</button>
-      </form>
+    <header class="banner">
+        <h1>Gestão de Clientes</h1>
+        <p>Cadastre e gerencie sua base de contatos</p>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2 id="titulo-form">Novo Cadastro</h2>
+            <form id="form-cliente">
+                <input type="text" name="nome" placeholder="Nome do Cliente" required>
+                <input type="text" name="cpf" placeholder="CPF/CNPJ" required>
+                <input type="tel" name="telefone" placeholder="Telefone" required>
+                <button type="submit" id="btn-salvar">Salvar Cliente</button>
+            </form>
+        </div>
+
+        <div class="card" style="margin-top: 20px;">
+            <h2>Clientes Cadastrados</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>CPF/CNPJ</th>
+                        <th>Telefone</th>
+                        <th>Ações</th> <!-- Coluna de Ações adicionada -->
+                    </tr>
+                </thead>
+                <tbody id="lista-clientes">
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <div class='card' style='margin-top:20px;'>
-      <h2>Clientes Cadastados</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>CPF/CNPJ</th>
-            <th>Telefone</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id='lista-clientes'>
-        </tbody>
-      </table>
-    </div>
-  </div>
+    <script>
+        // Função para carregar os clientes e desenhar os botões de ação
+        function carregarClientes() {
+            fetch('/listar-clientes')
+                .then(res => res.json())
+                .then(clientes => {
+                    const corpoTabela = document.getElementById('lista-clientes');
+                    corpoTabela.innerHTML = ''; 
+                    clientes.forEach(c => {
+                        corpoTabela.innerHTML += `
+                            <tr>
+                                <td>${c.nome}</td>
+                                <td>${c.cpf}</td>
+                                <td>${c.telefone}</td>
+                                <td>
+                                    <button onclick="prepararEdicao(${c.id}, '${c.nome}', '${c.cpf}', '${c.telefone}')" 
+                                        style="width:auto; background:orange; padding:5px 10px; margin-right:5px;">✏️</button>
+                                    <button onclick="excluirCliente(${c.id})" 
+                                        style="width:auto; background:red; padding:5px 10px;">🗑️</button>
+                                </td>
+                            </tr>`;
+                    });
+                });
+        }
 
-  <script>
-    function carregarClientes(){
-      fetch('/listar-clientes')
-        .then(res=> res.json())
-        .then(clientes=>{
-          const corpoTabela=document.getElementById('lista-clientes');
-          clientes.forEach(c=>{
-            corpoTabela.innerHTML+=`
-              <tr>
-                  <td>${c.nome}</td>
-                  <td>${c.cpf}</td>
-                  <td>${c.telefone}</td>
-                  <td>
-                    <button onclick="prepararEdicao('${c.id}', '${c.nome}', '${c.cpf}', '${c.telefone}')" style="width:auto; background:orange; padding:5px 10px; margin-right:5px;">✏️</button>
-                    <button onclick="excluirCliente('${c.id}')" style="width:auto; background:red; padding:5px 10px;">🗑️</button>
-                  </td>
-              </tr>`;
-        });
-      });
-    }
-    document.getElementById('form-client').onsubmit = function(e) {
-        e.preventDefault();
-        
-        const id = this.dataset.id; // Verifica se há um ID guardado para edição
-        const dados = {
-            nome: this.nome.value,
-            cpf: this.cpf.value,
-            telefone: this.telefone.value
+        // Lógica para Salvar (Novo ou Edição)
+        document.getElementById('form-cliente').onsubmit = function(e) {
+            e.preventDefault();
+            const id = this.dataset.id; // Verifica se há um ID guardado para edição
+            const dados = {
+                nome: this.nome.value,
+                cpf: this.cpf.value,
+                telefone: this.telefone.value
+            };
+
+            const url = id ? `/alterar-cliente/${id}` : '/salvar-cliente';
+            const metodo = id ? 'PUT' : 'POST';
+
+            fetch(url, {
+                method: metodo,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            }).then(() => {
+                alert(id ? "Cliente alterado!" : "Cliente salvo!");
+                location.reload();
+            });
         };
 
-        const url = id ? `/alterar-cliente/${id}` : '/salvar-cliente';
-        const metodo = id ? 'PUT' : 'POST';
-
-        fetch(url, {
-            method: metodo,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dados)
-        }).then(() => {
-            alert(id ? "Cliente alterado!" : "Cliente salvo!");
-            location.reload();
-        });
-    };
-
-    // Função para Excluir | Acrescentar tudo
-    function excluirCliente(id) {
-        if (confirm("Deseja excluir este cliente?")) {
-            fetch(`/excluir-cliente/${id}`, { method: 'DELETE' })
-                .then(() => carregarClientes());
+        // Função para Excluir
+        function excluirCliente(id) {
+            if (confirm("Deseja excluir este cliente?")) {
+                fetch(`/excluir-cliente/${id}`, { method: 'DELETE' })
+                    .then(() => carregarClientes());
+            }
         }
-    }
 
-    // Função para colocar dados no form para Editar | Acrescentar tudo
-    function prepararEdicao(id, nome, cpf, telefone) {
-        const form = document.getElementById('form-cliente');
-        form.dataset.id = id; // Guarda o ID no formulário
-        
-        form.nome.value = nome;
-        form.cpf.value = cpf;
-        form.telefone.value = telefone;
+        // Função para colocar dados no form para Editar
+        function prepararEdicao(id, nome, cpf, telefone) {
+            const form = document.getElementById('form-cliente');
+            form.dataset.id = id; // Guarda o ID no formulário
+            form.nome.value = nome;
+            form.cpf.value = cpf;
+            form.telefone.value = telefone;
 
-        document.getElementById('titulo-form').innerText = "Editar Cadastro";
-        
-        const btn = document.getElementById('btn-salvar');
-        btn.innerText = "Confirmar Alteração";
-        btn.style.background = "orange";
-    }
+            document.getElementById('titulo-form').innerText = "Editar Cadastro";
+            const btn = document.getElementById('btn-salvar');
+            btn.innerText = "Confirmar Alteração";
+            btn.style.background = "orange";
+        }
 
-    // Inicialização ao carregar a página
-    carregarClientes();
-  </script>
+        carregarClientes();
+    </script>
 </body>
-<footer class='rodape'>
-  <div class='container-rodape'>
-    <p>&copy; 2026 SisSenai - Sistema de Gestão Educacional</p>
-    <p>Vinicius Zandomenico - Unidade Senai Capanema/PR</p>
-  </div>
+<footer class="rodape">
+    <div class="container-rodape">
+        <p>&copy; 2026 SisSenai - Sistema de Gestão Educacional</p>
+        <p>Desenvolvido para fins didáticos - Unidade SENAI Capanema/PR</p>
+    </div>
 </footer>
 </html>
-
-    
-        
-        
-
-        
